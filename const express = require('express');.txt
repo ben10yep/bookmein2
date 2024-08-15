@@ -1,0 +1,79 @@
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Database setup
+let db = new sqlite3.Database(':memory:', (err) => {
+    if (err) {
+        return console.error(err.message);
+    }
+    console.log('Connected to the in-memory SQlite database.');
+});
+
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public')); // To serve static files (HTML, CSS, JS)
+
+// Create tables based on the ERD
+db.serialize(() => {
+    db.run(`CREATE TABLE User (
+        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        role_id INTEGER
+    )`);
+
+    db.run(`CREATE TABLE Event (
+        event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        date DATE NOT NULL
+    )`);
+
+    db.run(`CREATE TABLE Session (
+        session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        date DATE,
+        time TIME,
+        location TEXT,
+        speaker_id INTEGER,
+        capacity INTEGER
+    )`);
+
+    db.run(`CREATE TABLE Payment (
+        payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        delegate_id INTEGER,
+        amount FLOAT,
+        payment_date DATE,
+        status TEXT
+    )`);
+
+    // Other tables following the ERD structure...
+});
+
+// Routes
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+// API to handle registrations, payments, etc.
+// Add more routes to handle CRUD operations for different entities
+
+// Example: Adding a new user
+app.post('/api/users', (req, res) => {
+    const { name, email, role_id } = req.body;
+    db.run(`INSERT INTO User (name, email, role_id) VALUES (?, ?, ?)`, [name, email, role_id], function(err) {
+        if (err) {
+            return res.status(400).json({ error: err.message });
+        }
+        res.json({ user_id: this.lastID });
+    });
+});
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
