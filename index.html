@@ -26,11 +26,11 @@
 
     // Grid Geometry (representing a slice of spacetime)
     const gridSize = 50;
-    const gridSpacing = 0.2;
+    const gridSpacing = 0.5;
     const geometry = new THREE.PlaneGeometry(gridSize, gridSize, gridSize, gridSize);
 
     // Deform the grid to simulate curvature
-    const mass = 10; // Adjust for more/less curvature
+    const mass = 20; // Adjust for more/less curvature
     const curveFactor = 5; // Adjust for intensity of deformation
     geometry.vertices.forEach(vertex => {
       const distance = Math.sqrt(vertex.x ** 2 + vertex.y ** 2);
@@ -48,7 +48,7 @@
     scene.add(light);
 
     // Camera Position
-    camera.position.z = 20;
+    camera.position.z = 40;
 
     // Animation Loop
     function animate() {
