@@ -1,58 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Management System</title>
-    <link rel="stylesheet" href="styles/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spacetime Curvature Visualization</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="events.html">Events</a></li>
-            <li><a href="users.html">Users</a></li>
-            <li><a href="sessions.html">Sessions</a></li>
-            <li><a href="payments.html">Payments</a></li>
-            <li><a href="polls.html">Polls</a></li>
-            <li><a href="login.html">Login</a></li>
-        </ul>
-    </nav>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script>
+    // Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-    <!-- Hero Section -->
-    <section id="hero">
-        <h1>Welcome to the Event Management System</h1>
-        <p>Your all-in-one platform to manage events, registrations, sessions, and more.</p>
-        <a href="register.html" class="cta">Get Started</a>
-    </section>
+    // Grid Geometry (representing a slice of spacetime)
+    const gridSize = 50;
+    const gridSpacing = 0.2;
+    const geometry = new THREE.PlaneGeometry(gridSize, gridSize, gridSize, gridSize);
 
-    <!-- Main Content -->
-    <section id="features">
-        <h2>Features</h2>
-        <div class="feature">
-            <h3>Event Management</h3>
-            <p>Create, manage, and oversee events seamlessly.</p>
-        </div>
-        <div class="feature">
-            <h3>User Management</h3>
-            <p>Manage users, roles, and authorizations with ease.</p>
-        </div>
-        <div class="feature">
-            <h3>Session Tracking</h3>
-            <p>Keep track of session registrations, attendance, and more.</p>
-        </div>
-        <div class="feature">
-            <h3>Secure Payments</h3>
-            <p>Handle payments and transactions securely and efficiently.</p>
-        </div>
-    </section>
+    // Deform the grid to simulate curvature
+    const mass = 10; // Adjust for more/less curvature
+    const curveFactor = 5; // Adjust for intensity of deformation
+    geometry.vertices.forEach(vertex => {
+      const distance = Math.sqrt(vertex.x ** 2 + vertex.y ** 2);
+      vertex.z = -curveFactor * mass / (distance + 1); // Basic Schwarzschild-like curvature
+    });
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Event Management System. All rights reserved.</p>
-    </footer>
+    // Material and Mesh
+    const material = new THREE.MeshBasicMaterial({ color: 0x0077ff, wireframe: true });
+    const spacetimeMesh = new THREE.Mesh(geometry, material);
+    scene.add(spacetimeMesh);
 
-    <script src="scripts/scripts.js"></script>
+    // Light (optional, to emphasize curvature)
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(0, 0, 10);
+    scene.add(light);
+
+    // Camera Position
+    camera.position.z = 20;
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      spacetimeMesh.rotation.x += 0.005; // Rotate for better view
+      spacetimeMesh.rotation.y += 0.005;
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
 </body>
 </html>
